@@ -96,74 +96,7 @@ const tg=new THREE.PlaneGeometry(66,66,170,170);tg.rotateX(-Math.PI/2);
  for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),h=H(x,z);p.setY(i,h);const n=1+Math.sin(x*3.1)*Math.sin(z*2.7)*.05,c=tcol(h);cs.set([c[0]/255*n,c[1]/255*n,c[2]/255*n],i*3)}
  tg.setAttribute('color',new THREE.BufferAttribute(cs,3));tg.computeVertexNormals()}
 const terrain=new THREE.Mesh(tg,new THREE.MeshStandardMaterial({vertexColors:true,roughness:1}));terrain.receiveShadow=true;scene.add(terrain);
-// ---------- 月光岛地形 ----------
-const moonIslandG=new THREE.PlaneGeometry(34,34,90,90);
-moonIslandG.rotateX(-Math.PI/2);
 
-{
-    const p=moonIslandG.attributes.position;
-    const cs=new Float32Array(p.count*3);
-
-    for(let i=0;i<p.count;i++){
-        const u=p.getX(i);
-        const v=p.getZ(i);
-
-        const d=Math.hypot(u,v);
-        const q=cl(1-d/17);
-
-        // 月光岛地形起伏
-        const h=
-            .15+
-            q*1.6+
-            Math.sin(u*.45)*Math.cos(v*.38)*.18*q;
-
-        p.setY(i,h);
-
-        // 粉色 → 淡粉 → 蓝紫色
-        let c;
-
-        if(h<.35){
-            c=mix(
-                [226,170,196],
-                [246,206,220],
-                cl((h-.05)/.3)
-            );
-        }else{
-            c=mix(
-                [246,206,220],
-                [176,170,214],
-                cl((h-.35)/1.3)
-            );
-        }
-
-        cs.set([
-            c[0]/255,
-            c[1]/255,
-            c[2]/255
-        ],i*3);
-    }
-
-    moonIslandG.setAttribute(
-        'color',
-        new THREE.BufferAttribute(cs,3)
-    );
-
-    moonIslandG.computeVertexNormals();
-}
-
-const moonIsland=new THREE.Mesh(
-    moonIslandG,
-    new THREE.MeshStandardMaterial({
-        vertexColors:true,
-        roughness:.9
-    })
-);
-
-moonIsland.position.set(MX,0,MZ);
-moonIsland.receiveShadow=true;
-moonIsland.castShadow=true;
-
-scene.add(moonIsland);
 // ---------- sea ----------
 const sg=new THREE.PlaneGeometry(320,320,110,110);sg.rotateX(-Math.PI/2);
 const sp=sg.attributes.position,bx=new Float32Array(sp.count),bz=new Float32Array(sp.count);
