@@ -55,7 +55,38 @@ addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight);camera.a
 // ---------- terrain ----------
 const RR=24;
 const MX=66,MZ=80,MR=15,MA=Math.atan2(80,66);
-function H0(x,z){const d=Math.hypot(x,z),f=1-(d/RR)**2;return f*2.3-.35+Math.sin(x*.21+2)*Math.cos(z*.18)*.55*Math.max(f,0)+Math.sin(x*.5+1)*Math.cos(z*.4)*.22+Math.sin(x*.9+z*.7)*.1*Math.max(f,0)}
+function H(x,z){
+    let h=H0(x,z);
+
+    for(const p of PLT){
+        const d=Math.hypot(x-p[0],z-p[1]);
+
+        if(d<p[2]+2.6){
+            const f=cl((d-p[2])/2.6);
+            const k=f*f*(3-2*f);
+            h=p[3]*(1-k)+h*k;
+        }
+    }
+
+    // ---------- 月光岛地形 ----------
+    const dx=x-MX;
+    const dz=z-MZ;
+    const d=Math.hypot(dx,dz);
+
+    if(d<MR+2.5){
+        const edge=cl((d-MR)/2.5);
+        const smooth=edge*edge*(3-2*edge);
+
+        // 岛屿中心较高，边缘逐渐过渡到海面
+        const islandH=
+            .35+
+            Math.cos(Math.min(d/MR,1)*Math.PI/2)*1.15;
+
+        h=islandH*(1-smooth)+h*smooth;
+    }
+
+    return h;
+}
 const PLT=[[-5.2,8.2,6.4,1.9],[5.4,7.4,4.4,1.68]];
 function H(x,z){let h=H0(x,z);for(const p of PLT){const d=Math.hypot(x-p[0],z-p[1]);if(d<p[2]+2.6){const f=cl((d-p[2])/2.6),k=f*f*(3-2*f);h=p[3]*(1-k)+h*k}}return h}
 const DEEP=[16,66,92],WET=[168,146,104],SAND=[232,212,164],G1=[104,166,96],G2=[134,184,104];
